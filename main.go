@@ -13,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
+	appapi "telco-call-orchestrator/internal/api"
 	appgrpc "telco-call-orchestrator/internal/grpc"
 	appkafka "telco-call-orchestrator/internal/kafka"
 	"telco-call-orchestrator/internal/orchestrator"
@@ -92,6 +93,8 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, `{"status":"ok","active_calls":%d}`, orch.ActiveCallCount())
 	})
+	apiHandler := appapi.NewHandler(orch, log)
+	apiHandler.Register(mux)
 	httpSrv := &http.Server{Addr: ":8080", Handler: mux}
 	go httpSrv.ListenAndServe()
 
